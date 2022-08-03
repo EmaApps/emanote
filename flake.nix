@@ -29,7 +29,8 @@
           buildTools = hp: {
             inherit (pkgs)
               treefmt
-              nixpkgs-fmt;
+              nixpkgs-fmt
+              stork;
             inherit (hp)
               cabal-fmt
               ormolu;
@@ -41,12 +42,15 @@
               ema;
           };
           overrides = self: super: with pkgs.haskell.lib; {
+            ema = dontCheck super.ema;
             heist-emanote = dontCheck (doJailbreak (unmarkBroken super.heist-emanote)); # Tests are broken.
             ixset-typed = unmarkBroken super.ixset-typed;
             pandoc-link-context = unmarkBroken super.pandoc-link-context;
             inherit (inputs'.tailwind-haskell.packages)
               tailwind;
           };
+          modifier = drv: with pkgs.haskell.lib;
+            addBuildDepends drv [ pkgs.stork ];
         };
         packages.test =
           pkgs.runCommand "emanote-test" { } ''
